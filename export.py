@@ -1,11 +1,12 @@
-import json
 from azure.cosmos import CosmosClient, PartitionKey, ContainerProxy, DatabaseProxy
+import json
+import os
 
 
 def run():
     endpoint = "https://nhl-data.documents.azure.com:443/"
-    key = "AZURE_PRIMARY_KEY"
-
+    key = os.getenv("COSMOS_PK")
+    
     client = CosmosClient(url=endpoint, credential=key)
     database = client.get_database_client("nhl-data")
 
