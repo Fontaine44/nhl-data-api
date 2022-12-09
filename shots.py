@@ -1,7 +1,6 @@
 from azure.cosmos import CosmosClient, PartitionKey, ContainerProxy, DatabaseProxy
 import json
 import os
-import keyring
 
 ENDPOINT = "https://nhl-data.documents.azure.com:443/"
 KEY = os.getenv("COSMOS_PK")
