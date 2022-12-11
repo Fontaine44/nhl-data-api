@@ -6,6 +6,12 @@ from shots import fetch_shots
 app = Flask(__name__)
 CORS(app)
 
+
+@app.route('/start', methods=["GET"])
+def start_server():
+    return jsonify({"success": True})
+
+
 @app.route('/shots', methods=["GET"])
 def get_shots():
     params = {
@@ -17,6 +23,3 @@ def get_shots():
     }
     shots = fetch_shots(params)
     return jsonify(shots)
-
-# if __name__ == '__main__':
-#     app.run(host="0.0.0.0", port=int("5000"), debug=True)
