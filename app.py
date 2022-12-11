@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from shots import fetch_shots
+from shots import fetch_shots, kde
 
 
 app = Flask(__name__)
@@ -22,4 +22,9 @@ def get_shots():
         "secondaryType": request.args.get("secondaryType", default=None, type=str)
     }
     shots = fetch_shots(params)
-    return jsonify(shots)
+    payload = {
+        "shots": shots,
+        "kde": kde(shots)
+    }
+    return jsonify(payload)
+    

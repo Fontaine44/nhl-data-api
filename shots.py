@@ -1,5 +1,7 @@
-from azure.cosmos import CosmosClient, PartitionKey, ContainerProxy, DatabaseProxy
-import json
+from azure.cosmos import CosmosClient
+from scipy.stats import gaussian_kde
+import numpy as np
+import pandas as pd
 import os
 
 ENDPOINT = "https://nhl-data.documents.azure.com:443/"
@@ -49,15 +51,12 @@ def get_cosmos_container(name):
     return database.get_container_client(name)
 
 
-def drop_data(database: DatabaseProxy):
-    try:
-        database.delete_container("mtl-shots")
-    finally:
-        database.create_container("mtl-shots", partition_key=PartitionKey(path='/id'))
-        container = database.get_container_client("mtl-shots")
-
-        with open("shots.json", "r") as f:
-            data = json.load(f)
-        
-        for entry in data:
-            container.create_item(entry, enable_automatic_id_generation=True)
+def kde(shots: list):
+    df = pd.DataFrame(shots)
+    df['x'] = df['x'].apply(abs)
+    x, y = np.mgrid[0:101, -43:43]
+    positions = np.vstack([x.ravel(), y.ravel()])
+    values = np.vstack([df['x'], df['y']])
+    kernel = gaussian_kde(values, bw_method="scott")
+    z = np.rot90(np.reshape(kernel(positions).T, (101,86)))
+    return z.tolist()
