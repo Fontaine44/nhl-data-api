@@ -22,7 +22,8 @@ def fetch_shots(params_dict: dict):
         c.team,
         c.gameId,
         c.strength,
-        c.distance
+        c.distance,
+        c.crossRed
         FROM c"""
 
     query_params = []
@@ -53,7 +54,8 @@ def get_cosmos_container(name):
 
 def kde(shots: list):
     df = pd.DataFrame(shots)
-    df['x'] = df['x'].apply(abs)
+    df = df.query("x > 24 and crossRed == True")   # remove shots outside the zone
+    df['y'] *= -1
     x, y = np.mgrid[0:101, -43:43]
     positions = np.vstack([x.ravel(), y.ravel()])
     values = np.vstack([df['x'], df['y']])
