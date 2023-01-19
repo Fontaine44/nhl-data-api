@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from shots import fetch_shots, kde
+from db import fetch_logs
 
 
 app = Flask(__name__)
@@ -27,4 +28,12 @@ def get_shots():
         "kde": kde(shots)
     }
     return jsonify(payload)
-    
+
+
+@app.route('/logs', methods=["GET"])
+def get_logs():
+    params = {
+        "date": request.args.get("date", default=None, type=str),
+    }
+    logs = fetch_logs(params)
+    return logs.replace("\n", "<br>")
