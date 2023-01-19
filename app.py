@@ -16,17 +16,24 @@ def start_server():
 @app.route('/shots', methods=["GET"])
 def get_shots():
     params = {
-        "playerId": request.args.get("playerId", default=None, type=int),
-        "gameId": request.args.get("gameId", default=None, type=int),
+        "shooterPlayerId": request.args.get("shooterPlayerId", default=None, type=int),
+        "shotType": request.args.get("shotType", default=None, type=str),
+        "event": request.args.get("event", default=None, type=str),
+        "teamCode": request.args.get("teamCode", default=None, type=str),
         "strength": request.args.get("strength", default=None, type=str),
-        "eventTypeId": request.args.get("eventTypeId", default=None, type=str),
-        "secondaryType": request.args.get("secondaryType", default=None, type=str)
     }
+
+    if not params["teamCode"]:
+        return "Must specify a team"
+
     shots = fetch_shots(params)
     payload = {
-        "shots": shots,
         "kde": kde(shots)
     }
+
+    if len(shots) <= 500:      # Only return shots if less than 500
+        payload["shots"] = shots
+
     return jsonify(payload)
 
 

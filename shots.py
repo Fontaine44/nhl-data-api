@@ -12,9 +12,16 @@ CONTAINER_NAME = "nhl-shots"
 
 def fetch_shots(params_dict: dict):
     query = """SELECT 
-        c.shotType,
         c.xCordAdjusted,
-        c.yCordAdjusted
+        c.yCordAdjusted,
+        c.period,
+        c.playerPositionThatDidEvent,
+        c.shooterName,
+        c.shooterPlayerId,
+        c.teamCode,
+        c.shotType,
+        c.event,
+        c.strength
         FROM c"""
 
     query_params = []
@@ -31,6 +38,9 @@ def fetch_shots(params_dict: dict):
                 query_params.append(f"c.{key}=@{key}")
 
         query += " WHERE " + " AND ".join(query_params)
+        query += ' AND c.event != "MISS"'
+    else:
+        query += ' WHERE c.event != "MISS"'
 
     with CosmosClient(url=ENDPOINT, credential=KEY) as client:
         client = CosmosClient(url=ENDPOINT, credential=KEY)
