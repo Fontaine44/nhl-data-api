@@ -28,7 +28,8 @@ def get_shots():
 
     shots = fetch_shots(params)
     payload = {
-        "kde": kde(shots)
+        "kde": kde(shots),
+        "shots": []
     }
 
     if len(shots) <= 500:      # Only return shots if less than 500

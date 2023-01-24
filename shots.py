@@ -57,6 +57,7 @@ def kde(shots: list):
     if len(shots) <= 1:
         return []
     df = pd.DataFrame(shots)
+    df['yCordAdjusted'] *= -1
     x, y = np.mgrid[0:101, -43:43]
     positions = np.vstack([x.ravel(), y.ravel()])
     values = np.vstack([df['xCordAdjusted'], df['yCordAdjusted']])
