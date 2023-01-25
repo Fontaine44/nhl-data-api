@@ -54,7 +54,7 @@ def fetch_shots(params_dict: dict):
 
 
 def kde(shots: list):
-    if len(shots) <= 1:
+    if len(shots) <= 2:
         return []
     df = pd.DataFrame(shots)
     df['yCordAdjusted'] *= -1

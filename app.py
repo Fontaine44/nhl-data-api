@@ -17,22 +17,26 @@ def start_server():
 def get_shots():
     params = {
         "shooterPlayerId": request.args.get("shooterPlayerId", default=None, type=int),
+        "game_id": request.args.get("gameId", default=None, type=int),
         "shotType": request.args.get("shotType", default=None, type=str),
         "event": request.args.get("event", default=None, type=str),
         "teamCode": request.args.get("teamCode", default=None, type=str),
         "strength": request.args.get("strength", default=None, type=str),
+        "zone": request.args.get("zone", default=None, type=str),
     }
 
     if not params["teamCode"]:
         return "Must specify a team"
 
     shots = fetch_shots(params)
+    number_of_shots = len(shots)
     payload = {
         "kde": kde(shots),
+        "length": number_of_shots,
         "shots": []
     }
 
-    if len(shots) <= 500:      # Only return shots if less than 500
+    if number_of_shots <= 500:      # Only return shots if less than 500
         payload["shots"] = shots
 
     return jsonify(payload)
