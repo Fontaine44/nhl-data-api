@@ -18,11 +18,13 @@ def get_shots():
     params = {
         "shooterPlayerId": request.args.get("shooterPlayerId", default=None, type=int),
         "game_id": request.args.get("gameId", default=None, type=int),
+        "period": request.args.get("period", default=None, type=int),
         "shotType": request.args.get("shotType", default=None, type=str),
         "event": request.args.get("event", default=None, type=str),
         "teamCode": request.args.get("teamCode", default=None, type=str),
         "strength": request.args.get("strength", default=None, type=str),
         "zone": request.args.get("zone", default=None, type=str),
+        "shooterLeftRight": request.args.get("shooterLeftRight", default=None, type=str),
     }
 
     if not params["teamCode"]:
