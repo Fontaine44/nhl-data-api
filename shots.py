@@ -35,7 +35,7 @@ def fetch_shots(params_dict: dict):
     else:
         query += " WHERE event != 'MISS'"
 
-    cs='''(description= (retry_count=1)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ca-montreal-1.oraclecloud.com))(connect_data=(service_name=g8776c1047b3446_t37f4p9a1idzstyd_low.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))'''
+    cs='''(description= (retry_count=10)(retry_delay=1)(address=(protocol=tcps)(port=1522)(host=adb.ca-montreal-1.oraclecloud.com))(connect_data=(service_name=g8776c1047b3446_t37f4p9a1idzstyd_low.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))'''
 
     with oracledb.connect(
         user="NHL_API",
