@@ -1,28 +1,24 @@
-from azure.cosmos import CosmosClient
 from scipy.stats import gaussian_kde
+import oracledb
 import numpy as np
 import pandas as pd
 import os
 
-ENDPOINT = "https://nhl-data.documents.azure.com:443/"
-KEY = os.getenv("COSMOS_PK")
-DATABASE_NAME = "nhl-data"
-CONTAINER_NAME = "nhl-shots"
-
+KEY = os.getenv("ORACLE_PASSWORD")
 
 def fetch_shots(params_dict: dict):
     query = """SELECT 
-        c.xCordAdjusted,
-        c.yCordAdjusted,
-        c.period,
-        c.playerPositionThatDidEvent,
-        c.shooterName,
-        c.shooterPlayerId,
-        c.teamCode,
-        c.shotType,
-        c.event,
-        c.strength
-        FROM c"""
+        xCordAdjusted,
+        yCordAdjusted,
+        period,
+        playerPositionThatDidEvent,
+        shooterName,
+        shooterPlayerId,
+        teamCode,
+        shotType,
+        event,
+        strength
+        FROM NHL_API.Shots"""
 
     query_params = []
     parameters = []
@@ -30,25 +26,39 @@ def fetch_shots(params_dict: dict):
     if not all(v is None for v in list(params_dict.values())):         # if there is a parameter
         for key, value in params_dict.items():
             if value:
-                parameters.append({
-                    "name": "@"+key,
-                    "value": value
-                })
+                parameters.append(value)
 
-                query_params.append(f"c.{key}=@{key}")
+                query_params.append(f"{key}=:{key}")
 
         query += " WHERE " + " AND ".join(query_params)
-        query += ' AND c.event != "MISS"'
+        query += " AND event != 'MISS'"
     else:
-        query += ' WHERE c.event != "MISS"'
+        query += " WHERE event != 'MISS'"
 
-    with CosmosClient(url=ENDPOINT, credential=KEY) as client:
-        client = CosmosClient(url=ENDPOINT, credential=KEY)
-        database = client.get_database_client(DATABASE_NAME)
-        container = database.get_container_client(CONTAINER_NAME)
-        results = container.query_items(
-            query=query, parameters=parameters, enable_cross_partition_query=True)
-        shots = [shot for shot in results]
+    cs='''(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ca-montreal-1.oraclecloud.com))(connect_data=(service_name=g8776c1047b3446_t37f4p9a1idzstyd_low.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))'''
+
+    with oracledb.connect(
+        user="NHL_API",
+        password=KEY,
+        dsn=cs) as conn:
+
+        with conn.cursor() as cursor:
+            results = cursor.execute(query, parameters)
+
+            shots = [
+                {
+                    "xCordAdjusted": shot[0],
+                    "yCordAdjusted": shot[1],
+                    "period": shot[2],
+                    "playerPositionThatDidEvent": shot[3],
+                    "shooterName": shot[4],
+                    "shooterPlayerId": shot[5],
+                    "teamCode": shot[6],
+                    "shotType": shot[7],
+                    "event": shot[8],
+                    "strength": shot[9]
+                }
+                for shot in results]
 
     return shots
 

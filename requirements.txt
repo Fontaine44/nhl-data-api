@@ -1,7 +1,7 @@
 flask
 flask-cors
-azure-cosmos
 gunicorn
 numpy
 scipy
 pandas
+oracledb
