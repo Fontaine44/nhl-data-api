@@ -5,6 +5,7 @@ import pandas as pd
 import os
 
 KEY = os.getenv("ORACLE_PASSWORD")
+CONNECTION_STR = "(description= (retry_count=2)(retry_delay=2)(address=(protocol=tcps)(port=1521)(host=adb.ca-montreal-1.oraclecloud.com))(connect_data=(service_name=g8776c1047b3446_fkmjnxbscms692ba_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))"
 
 def fetch_shots(params_dict: dict):
     query = """SELECT 
@@ -18,32 +19,26 @@ def fetch_shots(params_dict: dict):
         shotType,
         event,
         strength
-        FROM NHL_API.Shots"""
+        FROM NHL_API.Shots WHERE """
 
     query_params = []
-    parameters = []
+    current_param = 1
 
-    if not all(v is None for v in list(params_dict.values())):         # if there is a parameter
-        for key, value in params_dict.items():
-            if value:
-                parameters.append(value)
+    for key, value in params_dict.items():
+        if value:
+            query += f"{key} = :{current_param} AND "
+            query_params.append(value)
+            current_param += 1
 
-                query_params.append(f"{key}=:{key}")
-
-        query += " WHERE " + " AND ".join(query_params)
-        query += " AND event != 'MISS'"
-    else:
-        query += " WHERE event != 'MISS'"
-
-    cs='''(description= (retry_count=10)(retry_delay=1)(address=(protocol=tcps)(port=1522)(host=adb.ca-montreal-1.oraclecloud.com))(connect_data=(service_name=g8776c1047b3446_t37f4p9a1idzstyd_low.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))'''
+    query += "event != 'MISS'"
 
     with oracledb.connect(
         user="NHL_API",
         password=KEY,
-        dsn=cs) as conn:
+        dsn=CONNECTION_STR) as conn:
 
         with conn.cursor() as cursor:
-            results = cursor.execute(query, parameters)
+            results = cursor.execute(query, query_params)
 
             shots = [
                 {

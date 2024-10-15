@@ -1,17 +1,18 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from shots import fetch_shots, kde
-from db import fetch_logs
-
+from logs import fetch_logs
 
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/', methods=["GET"])
+def home():
+    return ""
 
 @app.route('/start', methods=["GET"])
 def start_server():
     return jsonify({"success": True})
-
 
 @app.route('/shots', methods=["GET"])
 def get_shots():
@@ -28,7 +29,7 @@ def get_shots():
     }
 
     if not params["teamCode"]:
-        return "Must specify a team"
+        return "Must specify a team", 400
 
     shots = fetch_shots(params)
     number_of_shots = len(shots)
@@ -43,11 +44,10 @@ def get_shots():
 
     return jsonify(payload)
 
-
 @app.route('/logs', methods=["GET"])
 def get_logs():
-    params = {
-        "date": request.args.get("date", default=None, type=str),
-    }
-    logs = fetch_logs(params)
+    logs = fetch_logs(request.args.get("date", default=None, type=str))
     return logs.replace("\n", "<br>")
+
+if __name__ == '__main__':
+    app.run(debug=True)
