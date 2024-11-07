@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from shots import fetch_shots, kde
 from logs import fetch_logs
+from nhl_api import get_games, get_teams, get_players
 
 app = Flask(__name__)
 CORS(app)
@@ -48,6 +49,18 @@ def get_shots():
 def get_logs():
     logs = fetch_logs(request.args.get("date", default=None, type=str))
     return logs.replace("\n", "<br>")
+
+@app.route('/teams', methods=["GET"])
+def get_nhl_teams():
+    return get_teams()
+
+@app.route('/players/<team_abbrev>', methods=["GET"])
+def get_nhl_players(team_abbrev):
+    return get_players(team_abbrev)
+
+@app.route('/games/<team_abbrev>', methods=["GET"])
+def get_nhl_games(team_abbrev):
+    return get_games(team_abbrev)
 
 if __name__ == '__main__':
     app.run(debug=True)
