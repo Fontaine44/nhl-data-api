@@ -16,7 +16,7 @@ def get_teams():
     for franchise in franchises:
         teams = franchise['teams']
         for team in teams:
-            if team['triCode'] in TEAMS:
+            if team['triCode'] in TEAMS and team['id'] != 59:
                 filtered_teams.append(
                     {
                         'id': team['id'],
